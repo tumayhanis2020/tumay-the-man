@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="295e214b-d014-4180-8172-1cd4c2be6956" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="85f00ec6-081d-4ac0-a4a6-7921b5277913" >
+		<http:listener-connection host="0.0.0.0" port="8077" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="27beb2b6-b202-4f30-9fd0-47b882fd3fbc" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="e019f8d6-2d80-446d-8ed3-f880f05e70d1" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Mack" database="school" />
+	</db:config>
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="e89a64f2-9169-4fd5-b931-c04df42ba710" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Mack" database="Project2" />
+	</db:config>
+	<flow name="requestFlow" doc:id="61b956ca-ec92-440a-b10e-e8f306747c70" >
+		<http:listener doc:name="Listener" doc:id="dcffafca-b939-420c-bdd0-55120ad9ee9d" config-ref="HTTP_Listener_config" path="/cd"/>
+		<http:request method="POST" doc:name="Request" doc:id="f7742a38-1bb3-4f5c-a68c-9c58feeaae3f" path="/ce" config-ref="HTTP_Request_configuration">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Key" : "Value"
+}]]]></http:headers>
+		</http:request>
+	</flow>
+	<flow name="requestFlow1" doc:id="4e2656d4-3f27-4568-937a-9369c3a62512" >
+		<http:listener doc:name="Listener" doc:id="00a4e17d-e8cf-478a-89da-cf26e4385643" config-ref="HTTP_Listener_config1" path="/ce"/>
+		<ee:transform doc:name="Transform Message" doc:id="ac3a0bdf-c071-41ed-ae63-a2246ecc8a02">
+			<ee:message>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="cd" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	
+		cid: payload.CUSTOMER.ID,
+		fname: payload.CUSTOMER.FIRSTNAME,
+		lname: payload.CUSTOMER.LASTNAME,
+		street: payload.CUSTOMER.STREET,
+		city: payload.CUSTOMER.CITY,
+		fullname: (payload.CUSTOMER.FIRSTNAMEdefault "") ++ payload.CUSTOMER.LASTNAME
+	
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="761a6a4c-49cc-475e-85e3-3ebf057678b7" config-ref="Database_Config1">
+			<db:sql >insert into customer (cid,fname,lname,street,city,fullname) values (:cid,:fname,:lname,:street,:city,:fn)</db:sql>
+			<db:input-parameters ><![CDATA[#[{'cid':vars.cd.cid,'fname':vars.cd.fname,'lname':vars.cd.lname,'street':vars.cd.street,'city':vars.cd.city,'fn':vars.cd.fullname}]]]></db:input-parameters>
+		</db:insert>
+	</flow>
+</mule>

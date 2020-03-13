@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="gddgd" format="json">
+      <types:shape format="weave" example="examples/new35i.json"><![CDATA[%dw 2.0
+
+type gddgd = {|
+  CUSTOMER: {|
+    ID: Number {"typeId": "int"}, 
+    FIRSTNAME: String, 
+    LASTNAME: String, 
+    STREET: String, 
+    CITY: String
+  |}
+|} {"example": "{\"CUSTOMER\":{\"ID\":35,\"FIRSTNAME\":\"George\",\"LASTNAME\":\"Karsen\",\"STREET\":\"412 College Av.\",\"CITY\":\"Chicago\"}}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="sdhfhjsfhj" format="json">
+      <types:shape format="weave" example="examples/new29ii.json"><![CDATA[%dw 2.0
+
+type sdhfhjsfhj = {|
+  customer: {|
+    cid: Number {"typeId": "int"}, 
+    fname: String, 
+    lname: String, 
+    street: String, 
+    city: String, 
+    fullname: String
+  |}
+|} {"example": "{\"customer\":{\"cid\":24,\"fname\":\"Gery\",\"lname\":\"King\",\"street\":\"455 greenmont dr\",\"city\":\"jackson\",\"fullname\":\"Lawrence Mack\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#ac3a0bdf-c071-41ed-ae63-a2246ecc8a02">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="gddgd"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:variables>
+          <types:variable name="cd" type="sdhfhjsfhj"/>
+        </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
